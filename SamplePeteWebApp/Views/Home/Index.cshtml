@@ -1,0 +1,52 @@
+﻿@using System.Web;
+
+@Html.AntiForgeryToken()
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center"><h1 class="display-4">Current Projects</h1></div>
+<br />
+<div id="divCreateProject" class="pb-3" style="display: none;"><a class="editor-create create-project-link">+ Create new record</a></div>
+<div id="divIndex" class="text-center"
+     data-get-projects-url="@HttpUtility.UrlDecode(Url.Action("Projects", "api/CurrentProjects"))"
+     data-post-or-patch-project-url="@HttpUtility.UrlDecode(Url.Action("Project", "api/CurrentProjects"))"
+     data-delete-project-url="@HttpUtility.UrlDecode(Url.Action("Project", "api/CurrentProjects"))">
+    <table id="tblProjects" class="display" width="100%" style="display: none;">
+        <thead>
+            <tr>
+                <th>Project ID</th>
+                <th>Project Name</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<div id="divSpinnerLoading" style="padding-top: 150px; text-align: center; display: block;">
+    <div class="spinner-border"></div>
+</div>
+<div id="divEditProjectDialog" style="display: none;">
+    <label for="txtProjectName">Project Name:</label>
+    <input type="text" id="txtProjectName" name="txtProjectName" class="edit-input" autocomplete="off">
+    <br /><br />
+    <label for="dpEditProjectStartDate">Start Date:</label>
+    <input type="text" id="dpEditProjectStartDate" name="dpEditProjectStartDate" class="edit-input" autocomplete="off">
+    <br /><br />
+    <label for="dpEditProjectEndDate">End Date:</label>
+    <input type="text" id="dpEditProjectEndDate" name="dpEditProjectEndDate" class="edit-input" autocomplete="off">
+    <br /><br />
+    <div class="row">
+        <div class="col-sm-2">
+            <button id="btnSave" type="button" class="ui-button ui-widget ui-corner-all edit-btn" onclick="SaveProjectEditModal()">Save</button>
+        </div>
+        <div class="col-sm-2">
+            <button id="btnCancel" type="button" class="ui-button ui-widget ui-corner-all edit-btn" onclick="CloseProjectEditModal()">Cancel</button>
+        </div>
+    </div>
+    <input type="hidden" id="hdnProjectID" name="hdnProjectID" value="">
+</div>
+<script src="~/js/Projects.js" asp-append-version="true" async></script>
