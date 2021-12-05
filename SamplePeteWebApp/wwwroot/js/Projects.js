@@ -162,7 +162,14 @@ function BuildDatatable(dataProjects) {
                 "targets": [3],
                 "render": $.fn.dataTable.render.moment('YYYY-MM-DDTHH:mm:ss', 'MM/DD/YYYY')
             }
-        ]
+        ],
+        "bStateSave": true,
+        "fnStateSave": function (oSettings, oData) {
+            localStorage.setItem('tblProjects', JSON.stringify(oData));
+        },
+        "fnStateLoad": function (oSettings) {
+            return JSON.parse(localStorage.getItem('tblProjects'));
+        }
     });
 
     HideSpinnerShowTable();

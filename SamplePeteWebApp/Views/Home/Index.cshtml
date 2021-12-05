@@ -6,9 +6,9 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center"><h1 class="display-4">Current Projects</h1></div>
+<div class="text-center"><h1 class="display-4 pt-1">Current Projects</h1></div>
 <br />
-<div id="divCreateProject" class="pb-3" style="display: none;"><a class="editor-create create-project-link">+ Create new record</a></div>
+<div id="divCreateProject" class="pb-3" style="display: none;"><a class="editor-create create-project-link">+ Create new Project</a></div>
 <div id="divIndex" class="text-center"
      data-get-projects-url="@HttpUtility.UrlDecode(Url.Action("Projects", "api/CurrentProjects"))"
      data-post-or-patch-project-url="@HttpUtility.UrlDecode(Url.Action("Project", "api/CurrentProjects"))"
@@ -39,7 +39,7 @@
     <label for="dpEditProjectEndDate">End Date:</label>
     <input type="text" id="dpEditProjectEndDate" name="dpEditProjectEndDate" class="edit-input" autocomplete="off">
     <br /><br />
-    <div class="row">
+    <div class="row dialog-row-btn">
         <div class="col-sm-2">
             <button id="btnSave" type="button" class="ui-button ui-widget ui-corner-all edit-btn" onclick="SaveProjectEditModal()">Save</button>
         </div>
