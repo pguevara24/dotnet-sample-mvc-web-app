@@ -27,8 +27,10 @@ namespace SamplePeteService
             using var context = new Context();
 
             return await context.TblProjects
+                    .AsNoTracking()
                     .OrderBy(tblProject => tblProject.ProjectName)
-                    .ToListAsync().ConfigureAwait(false);
+                    .ToListAsync()
+                    .ConfigureAwait(false);
         }
 
         public static async Task UpdateProjectAsync(TblProject tblProject)

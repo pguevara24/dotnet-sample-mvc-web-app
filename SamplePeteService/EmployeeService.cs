@@ -26,7 +26,9 @@ namespace SamplePeteService
             using var context = new Context();
 
             return await context.TblEmployeeInfos
-                    .ToListAsync().ConfigureAwait(false);
+                    .AsNoTracking()
+                    .ToListAsync()
+                    .ConfigureAwait(false);
         }
 
         public static async Task UpdateEmployeeAsync(TblEmployeeInfo tblEmployeeInfo)
