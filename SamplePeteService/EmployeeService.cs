@@ -6,45 +6,58 @@ using SamplePeteService.Models;
 
 namespace SamplePeteService
 {
+    public interface IEmployeeService
+    {
+        Task CreateEmployeeAsync(TblEmployeeInfo tblEmployeeInfo);
+        Task DeleteEmployeeAsync(TblEmployeeInfo tblEmployeeInfo);
+        Task<List<TblEmployeeInfo>> GetEmployeesAsync();
+        Task UpdateEmployeeAsync(TblEmployeeInfo tblEmployeeInfo);
+    }
+
     /// <summary>
     /// CRUD functions for TblEmployeeInfo table
     /// </summary>
-    public static class EmployeeService
+    public class EmployeeService : IEmployeeService
     {
-        public static async Task CreateEmployeeAsync(TblEmployeeInfo tblEmployeeInfo)
+        private readonly Context _context;
+
+        public EmployeeService(Context context)
         {
-            using var context = new Context();
-
-            tblEmployeeInfo.EmployeeID = Guid.NewGuid().ToString();
-
-            await context.AddAsync(tblEmployeeInfo).ConfigureAwait(false);
-            await context.SaveChangesAsync().ConfigureAwait(false);
+            _context = context;
         }
 
-        public static async Task<List<TblEmployeeInfo>> GetEmployeesAsync()
+        public async Task CreateEmployeeAsync(TblEmployeeInfo tblEmployeeInfo)
         {
-            using var context = new Context();
+            tblEmployeeInfo.EmployeeID = Guid.NewGuid().ToString();
 
-            return await context.TblEmployeeInfos
+            await _context.AddAsync(tblEmployeeInfo).ConfigureAwait(false);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
+        }
+
+        public async Task<List<TblEmployeeInfo>> GetEmployeesAsync()
+        {
+            return await _context.TblEmployeeInfos
                     .AsNoTracking()
                     .ToListAsync()
                     .ConfigureAwait(false);
         }
 
-        public static async Task UpdateEmployeeAsync(TblEmployeeInfo tblEmployeeInfo)
+        public async Task UpdateEmployeeAsync(TblEmployeeInfo tblEmployeeInfo)
         {
-            using var context = new Context();
+            TblEmployeeInfo entity = await _context.TblEmployeeInfos.FindAsync(tblEmployeeInfo.EmployeeID).ConfigureAwait(false);
 
-            context.Update(tblEmployeeInfo);
-            await context.SaveChangesAsync().ConfigureAwait(false);
+            _context.Entry(entity).CurrentValues.SetValues(tblEmployeeInfo);
+
+            _context.Update(entity);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
         }
 
-        public static async Task DeleteEmployeeAsync(TblEmployeeInfo tblEmployeeInfo)
+        public async Task DeleteEmployeeAsync(TblEmployeeInfo tblEmployeeInfo)
         {
-            using var context = new Context();
+            TblEmployeeInfo entity = await _context.TblEmployeeInfos.FindAsync(tblEmployeeInfo.EmployeeID).ConfigureAwait(false);
 
-            context.Remove(tblEmployeeInfo);
-            await context.SaveChangesAsync().ConfigureAwait(false);
+            _context.Remove(entity);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
         }
     }
 }

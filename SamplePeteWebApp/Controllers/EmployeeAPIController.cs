@@ -10,32 +10,39 @@ namespace SamplePeteWeb.Controllers
     [ApiController]
     public class EmployeeAPIController : Controller
     {
+        private readonly IEmployeeService _employeeService;
+
+        public EmployeeAPIController(IEmployeeService employeeService)
+        {
+            _employeeService = employeeService;
+        }
+
         [Route("Employee")]
         [HttpPost]
         public async Task CreateEmployeeAsync(TblEmployeeInfo tblEmployeeInfo)
         {
-            await EmployeeService.CreateEmployeeAsync(tblEmployeeInfo).ConfigureAwait(false);
+            await _employeeService.CreateEmployeeAsync(tblEmployeeInfo).ConfigureAwait(false);
         }
 
         [Route("Employees")]
         [HttpGet]
         public async Task<List<TblEmployeeInfo>> EmployeesAsync()
         {
-            return await EmployeeService.GetEmployeesAsync().ConfigureAwait(false);
+            return await _employeeService.GetEmployeesAsync().ConfigureAwait(false);
         }
 
         [Route("Employee")]
         [HttpPatch]
         public async Task UpdateEmployeeAsync(TblEmployeeInfo tblEmployeeInfo)
         {
-            await EmployeeService.CreateEmployeeAsync(tblEmployeeInfo).ConfigureAwait(false);
+            await _employeeService.CreateEmployeeAsync(tblEmployeeInfo).ConfigureAwait(false);
         }
 
         [Route("Employee")]
         [HttpDelete]
         public async Task DeleteEmployeeAsync(TblEmployeeInfo tblEmployeeInfo)
         {
-            await EmployeeService.DeleteEmployeeAsync(tblEmployeeInfo).ConfigureAwait(false);
+            await _employeeService.DeleteEmployeeAsync(tblEmployeeInfo).ConfigureAwait(false);
         }
     }
 }

@@ -7,46 +7,59 @@ using SamplePeteService.Models;
 
 namespace SamplePeteService
 {
+    public interface IProjectService
+    {
+        Task CreateProjectAsync(TblProject tblProject);
+        Task DeleteProjectAsync(TblProject tblProject);
+        Task<List<TblProject>> GetProjectsAsync();
+        Task UpdateProjectAsync(TblProject tblProject);
+    }
+
     /// <summary>
     /// CRUD functions for TblProject table
     /// </summary>
-    public static class ProjectService
+    public class ProjectService : IProjectService
     {
-        public static async Task CreateProjectAsync(TblProject tblProject)
+        private readonly Context _context;
+
+        public ProjectService(Context context)
         {
-            using var context = new Context();
-
-            tblProject.ProjectID = Guid.NewGuid().ToString();
-
-            await context.AddAsync(tblProject).ConfigureAwait(false);
-            await context.SaveChangesAsync().ConfigureAwait(false);
+            _context = context;
         }
 
-        public static async Task<List<TblProject>> GetProjectsAsync()
+        public async Task CreateProjectAsync(TblProject tblProject)
         {
-            using var context = new Context();
+            tblProject.ProjectID = Guid.NewGuid().ToString();
 
-            return await context.TblProjects
+            await _context.AddAsync(tblProject).ConfigureAwait(false);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
+        }
+
+        public async Task<List<TblProject>> GetProjectsAsync()
+        {
+            return await _context.TblProjects
                     .AsNoTracking()
                     .OrderBy(tblProject => tblProject.ProjectName)
                     .ToListAsync()
                     .ConfigureAwait(false);
         }
 
-        public static async Task UpdateProjectAsync(TblProject tblProject)
+        public async Task UpdateProjectAsync(TblProject tblProject)
         {
-            using var context = new Context();
+            TblProject entity = await _context.TblProjects.FindAsync(tblProject.ProjectID).ConfigureAwait(false);
 
-            context.Update(tblProject);
-            await context.SaveChangesAsync().ConfigureAwait(false);
+            _context.Entry(entity).CurrentValues.SetValues(tblProject);
+
+            _context.Update(entity);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
         }
 
-        public static async Task DeleteProjectAsync(TblProject tblProject)
+        public async Task DeleteProjectAsync(TblProject tblProject)
         {
-            using var context = new Context();
+            TblProject entity = await _context.TblProjects.FindAsync(tblProject.ProjectID).ConfigureAwait(false);
 
-            context.Remove(tblProject);
-            await context.SaveChangesAsync().ConfigureAwait(false);
+            _context.Remove(entity);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
         }
     }
 }

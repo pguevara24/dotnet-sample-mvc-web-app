@@ -11,6 +11,13 @@ namespace SamplePeteWeb.Controllers
     [ApiController]
     public class ProjectAPIController : Controller
     {
+        private readonly IProjectService _projectService;
+
+        public ProjectAPIController(IProjectService projectService)
+        {
+            _projectService = projectService;
+        }
+
         [Route("Project")]
         [HttpPost]
         public async Task CreateProjectAsync(TblProject tblProject)
@@ -21,7 +28,7 @@ namespace SamplePeteWeb.Controllers
             tblProject.EndDate = tblProject.EndDate.Date;
             tblProject.EndDate = DateTime.SpecifyKind(tblProject.EndDate, DateTimeKind.Unspecified);
 
-            await ProjectService.CreateProjectAsync(tblProject).ConfigureAwait(false);
+            await _projectService.CreateProjectAsync(tblProject).ConfigureAwait(false);
         }
 
         [Route("Projects")]
@@ -29,7 +36,7 @@ namespace SamplePeteWeb.Controllers
         [ValidateAntiForgeryToken]
         public async Task<List<TblProject>> ProjectsAsync()
         {
-            return await ProjectService.GetProjectsAsync().ConfigureAwait(false);
+            return await _projectService.GetProjectsAsync().ConfigureAwait(false);
         }
 
         [Route("Project")]
@@ -43,7 +50,7 @@ namespace SamplePeteWeb.Controllers
             tblProject.EndDate = tblProject.EndDate.Date;
             tblProject.EndDate = DateTime.SpecifyKind(tblProject.EndDate, DateTimeKind.Unspecified);
 
-            await ProjectService.UpdateProjectAsync(tblProject).ConfigureAwait(false);
+            await _projectService.UpdateProjectAsync(tblProject).ConfigureAwait(false);
         }
 
         [Route("Project")]
@@ -51,7 +58,7 @@ namespace SamplePeteWeb.Controllers
         [ValidateAntiForgeryToken]
         public async Task DeleteProjectAsync(TblProject tblProject)
         {
-            await ProjectService.DeleteProjectAsync(tblProject).ConfigureAwait(false);
+            await _projectService.DeleteProjectAsync(tblProject).ConfigureAwait(false);
         }
     }
 }

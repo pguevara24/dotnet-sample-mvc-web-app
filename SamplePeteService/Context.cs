@@ -1,21 +1,18 @@
-﻿using System;
-using System.IO;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Configuration;
+using SamplePeteService.Models;
 
 #nullable disable
 
-namespace SamplePeteService.Models
+namespace SamplePeteService
 {
     public partial class Context : DbContext
     {
-        public Context()
+        public Context() : base()
         {
         }
 
-        public Context(DbContextOptions<Context> options)
-            : base(options)
+        public Context(DbContextOptions<Context> options) : base(options)
         {
         }
 
@@ -27,34 +24,10 @@ namespace SamplePeteService.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-                IConfigurationRoot configuration = null;
-                bool useInMemoryDatabase = true;
+                // always default to the in-memory database
 
-                try
-                {
-                    configuration = new ConfigurationBuilder()
-                        .SetBasePath(Directory.GetParent(AppContext.BaseDirectory).FullName)
-                        .AddJsonFile("appsettings.json", false)
-                        .Build();
-
-                    useInMemoryDatabase = configuration.GetSection("PeteSampleAppSettings:UseInMemoryDatabase").Value != null && bool.Parse(configuration.GetSection("PeteSampleAppSettings:UseInMemoryDatabase").Value);
-                }
-                catch (Exception)
-                {
-                    // appsettings.json file is missing
-                    // default to using in-memory-database
-                    useInMemoryDatabase = true;
-                }
-
-                if (useInMemoryDatabase)
-                {
-                    optionsBuilder.UseInMemoryDatabase("SamplePeteAppDB")
-                        .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning)); // don't raise the error warning us that the in-memory-database doesn't support tranactions
-                }
-                else
-                {
-                    optionsBuilder.UseSqlServer(configuration.GetConnectionString("PETESAMPLEAPPCONNECTION"));
-                }
+                optionsBuilder.UseInMemoryDatabase("SamplePeteAppDB")
+                        .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning)); // don't raise the error warning us that the in-memory-database doesn't support transactions
             }
         }
 

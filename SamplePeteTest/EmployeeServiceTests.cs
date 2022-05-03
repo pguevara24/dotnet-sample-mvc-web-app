@@ -10,24 +10,47 @@ namespace SamplePeteTest
     [TestClass]
     public class EmployeeServiceTests
     {
-        [TestMethod]
-        public async Task CreateEmployee_RecordAdded()
+        private static TblEmployeeInfo _tblEmployeeInfo;
+        private static Context _dbContext;
+        private static EmployeeService _employeeService;
+
+        [ClassInitialize()]
+        public static void InitTestSuite(TestContext testContext)
         {
-            // arrange
-            TblEmployeeInfo tblEmployeeInfo = new()
+            _tblEmployeeInfo = new()
             {
                 FirstName = "Some",
                 LastName = "Person",
                 PositionTitle = "Temp",
                 DateHired = DateTime.Now
             };
+        }
+
+        [TestInitialize]
+        public void Setup()
+        {
+            _dbContext = new();
+            _employeeService = new(_dbContext);
+        }
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            _dbContext.Database.EnsureDeleted(); // Remove from memory
+            _dbContext.Dispose();
+        }
+
+        [TestMethod]
+        public async Task CreateEmployee_RecordAdded()
+        {
+            // arrange
 
             // act
-            await EmployeeService.CreateEmployeeAsync(tblEmployeeInfo).ConfigureAwait(false);
+            await _employeeService.CreateEmployeeAsync(_tblEmployeeInfo).ConfigureAwait(false);
 
             // assert
-            List<TblEmployeeInfo> lstTblEmployeeInfo = await EmployeeService.GetEmployeesAsync().ConfigureAwait(false);
-            Assert.IsNotNull(lstTblEmployeeInfo.Find(x => x.PositionTitle == "Temp"));
+            List<TblEmployeeInfo> lstTblEmployeeInfo = await _employeeService.GetEmployeesAsync().ConfigureAwait(false);
+            Assert.IsNotNull(lstTblEmployeeInfo[0]);
         }
 
         [TestMethod]
@@ -36,7 +59,7 @@ namespace SamplePeteTest
             // arrange
 
             // act
-            List<TblEmployeeInfo> lstTblEmployeeInfo = await EmployeeService.GetEmployeesAsync().ConfigureAwait(false);
+            List<TblEmployeeInfo> lstTblEmployeeInfo = await _employeeService.GetEmployeesAsync().ConfigureAwait(false);
 
             // assert
             Assert.IsNotNull(lstTblEmployeeInfo);
@@ -46,31 +69,33 @@ namespace SamplePeteTest
         public async Task UpdateEmployee_RecordUpdated()
         {
             // arrange
-            List<TblEmployeeInfo> lstTblEmployeeInfo = await EmployeeService.GetEmployeesAsync().ConfigureAwait(false);
-            TblEmployeeInfo tblEmployeeInfo = lstTblEmployeeInfo.Find(x => x.PositionTitle == "Temp");
+            await _employeeService.CreateEmployeeAsync(_tblEmployeeInfo).ConfigureAwait(false);
+            List<TblEmployeeInfo> lstTblEmployeeInfo = await _employeeService.GetEmployeesAsync().ConfigureAwait(false);
+            TblEmployeeInfo tblEmployeeInfo = lstTblEmployeeInfo[0];
             tblEmployeeInfo.FirstName = "Special";
 
             // act
-            await EmployeeService.UpdateEmployeeAsync(tblEmployeeInfo).ConfigureAwait(false);
+            await _employeeService.UpdateEmployeeAsync(tblEmployeeInfo).ConfigureAwait(false);
 
             // assert
-            lstTblEmployeeInfo = await EmployeeService.GetEmployeesAsync().ConfigureAwait(false);
-            Assert.IsTrue(string.Compare(lstTblEmployeeInfo.Find(x => x.PositionTitle == "Temp").FirstName, "Special") == 0);
+            lstTblEmployeeInfo = await _employeeService.GetEmployeesAsync().ConfigureAwait(false);
+            Assert.IsTrue(string.Compare(lstTblEmployeeInfo[0].FirstName, "Special") == 0);
         }
 
         [TestMethod]
         public async Task DeleteEmployee_RecordRemoved()
         {
             // arrange
-            List<TblEmployeeInfo> lstTblEmployeeInfo = await EmployeeService.GetEmployeesAsync().ConfigureAwait(false);
-            TblEmployeeInfo tblEmployeeInfo = lstTblEmployeeInfo.Find(x => x.PositionTitle == "Temp");
+            await _employeeService.CreateEmployeeAsync(_tblEmployeeInfo).ConfigureAwait(false);
+            List<TblEmployeeInfo> lstTblEmployeeInfo = await _employeeService.GetEmployeesAsync().ConfigureAwait(false);
+            TblEmployeeInfo tblEmployeeInfo = lstTblEmployeeInfo[0];
 
             // act
-            await EmployeeService.DeleteEmployeeAsync(tblEmployeeInfo).ConfigureAwait(false);
+            await _employeeService.DeleteEmployeeAsync(tblEmployeeInfo).ConfigureAwait(false);
 
             // assert
-            lstTblEmployeeInfo = await EmployeeService.GetEmployeesAsync().ConfigureAwait(false);
-            Assert.IsNull(lstTblEmployeeInfo.Find(x => x.PositionTitle == "Temp"));
+            lstTblEmployeeInfo = await _employeeService.GetEmployeesAsync().ConfigureAwait(false);
+            Assert.IsTrue(lstTblEmployeeInfo.Count == 0);
         }
     }
 }

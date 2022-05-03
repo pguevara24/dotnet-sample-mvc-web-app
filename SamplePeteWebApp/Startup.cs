@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -20,6 +21,25 @@ namespace SamplePeteWebApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            bool UseInMemoryDatabase = Configuration.GetSection("PeteSampleAppSettings:UseInMemoryDatabase").Value != null && bool.Parse(Configuration.GetSection("PeteSampleAppSettings:UseInMemoryDatabase").Value);
+
+            /*
+             * Startup with an in-memory database for initial development or else use a SQL server instance.
+             *
+             * This is controlled by DevSettings:UseInMemoryDatabase in appsettings.json
+             */
+            if (UseInMemoryDatabase)
+            {
+                services.AddDbContext<Context>(config => config.UseInMemoryDatabase("MemoryBaseDataBase"));
+            }
+            else
+            {
+                services.AddDbContext<Context>(options =>
+                    options.UseSqlServer(Configuration.GetConnectionString("PETESAMPLEAPPCONNECTION")));
+            }
+
+            services.AddServices();
+
             services.AddControllersWithViews();
         }
 
@@ -55,6 +75,10 @@ namespace SamplePeteWebApp
              */
             if (Configuration.GetSection("PeteSampleAppSettings:SeedSampleProjects").Value != null && bool.Parse(Configuration.GetSection("PeteSampleAppSettings:SeedSampleProjects").Value))
             {
+                using IServiceScope scope = app.ApplicationServices.CreateScope();
+
+                IProjectService projectService = (IProjectService)scope.ServiceProvider.GetService(typeof(IProjectService));
+
                 TblProject tblProject1 = new()
                 {
                     ProjectName = "Sample Project 1",
@@ -62,7 +86,7 @@ namespace SamplePeteWebApp
                     EndDate = new System.DateTime(2020, 11, 29)
                 };
 
-                _ = ProjectService.CreateProjectAsync(tblProject1);
+                projectService.CreateProjectAsync(tblProject1).ConfigureAwait(false);
 
                 TblProject tblProject2 = new()
                 {
@@ -71,7 +95,7 @@ namespace SamplePeteWebApp
                     EndDate = new System.DateTime(2021, 11, 1)
                 };
 
-                _ = ProjectService.CreateProjectAsync(tblProject2);
+                projectService.CreateProjectAsync(tblProject2).ConfigureAwait(false);
 
                 TblProject tblProject3 = new()
                 {
@@ -80,7 +104,7 @@ namespace SamplePeteWebApp
                     EndDate = new System.DateTime(2020, 1, 5)
                 };
 
-                _ = ProjectService.CreateProjectAsync(tblProject3);
+                projectService.CreateProjectAsync(tblProject3).ConfigureAwait(false);
 
                 TblProject tblProject4 = new()
                 {
@@ -89,8 +113,19 @@ namespace SamplePeteWebApp
                     EndDate = new System.DateTime(2021, 6, 6)
                 };
 
-                _ = ProjectService.CreateProjectAsync(tblProject4);
+                projectService.CreateProjectAsync(tblProject4).ConfigureAwait(false);
             }
+        }
+    }
+
+    public static class SamplePeteWebAppServiceCollection
+    {
+        public static IServiceCollection AddServices(this IServiceCollection services)
+        {
+            services.AddScoped<IProjectService, ProjectService>();
+            services.AddScoped<IEmployeeService, EmployeeService>();
+
+            return services;
         }
     }
 }

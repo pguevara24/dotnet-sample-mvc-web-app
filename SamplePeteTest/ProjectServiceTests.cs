@@ -10,23 +10,46 @@ namespace SamplePeteTest
     [TestClass]
     public class ProjectServiceTests
     {
-        [TestMethod]
-        public async Task CreateProject_RecordAdded()
+        private static TblProject _tblProject;
+        private static Context _dbContext;
+        private static ProjectService _projectService;
+
+        [ClassInitialize()]
+        public static void InitTestSuite(TestContext testContext)
         {
-            // arrange
-            TblProject tblProject = new()
+            _tblProject = new()
             {
                 ProjectName = "New Project",
                 StartDate = new DateTime(2021, 11, 27),
                 EndDate = new DateTime(2021, 11, 29)
             };
+        }
+
+        [TestInitialize]
+        public void Setup()
+        {
+            _dbContext = new();
+            _projectService = new(_dbContext);
+        }
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            _dbContext.Database.EnsureDeleted(); // Remove from memory
+            _dbContext.Dispose();
+        }
+
+        [TestMethod]
+        public async Task CreateProject_RecordAdded()
+        {
+            // arrange
 
             // act
-            await ProjectService.CreateProjectAsync(tblProject).ConfigureAwait(false);
+            await _projectService.CreateProjectAsync(_tblProject).ConfigureAwait(false);
 
             // assert
-            List<TblProject> lstTblProject = await ProjectService.GetProjectsAsync().ConfigureAwait(false);
-            Assert.IsNotNull(lstTblProject.Find(x => x.ProjectName == "New Project"));
+            List<TblProject> lstTblProject = await _projectService.GetProjectsAsync().ConfigureAwait(false);
+            Assert.IsNotNull(lstTblProject[0]);
         }
 
         [TestMethod]
@@ -35,7 +58,7 @@ namespace SamplePeteTest
             // arrange
 
             // act
-            List<TblProject> lstTblProject = await ProjectService.GetProjectsAsync().ConfigureAwait(false);
+            List<TblProject> lstTblProject = await _projectService.GetProjectsAsync().ConfigureAwait(false);
 
             // assert
             Assert.IsNotNull(lstTblProject);
@@ -45,31 +68,33 @@ namespace SamplePeteTest
         public async Task UpdateProject_RecordUpdated()
         {
             // arrange
-            List<TblProject> lstTblProject = await ProjectService.GetProjectsAsync().ConfigureAwait(false);
-            TblProject tblProject = lstTblProject.Find(x => x.ProjectName == "New Project");
+            await _projectService.CreateProjectAsync(_tblProject).ConfigureAwait(false);
+            List<TblProject> lstTblProject = await _projectService.GetProjectsAsync().ConfigureAwait(false);
+            TblProject tblProject = lstTblProject[0];
             tblProject.ProjectName = "A Project";
 
             // act
-            await ProjectService.UpdateProjectAsync(tblProject).ConfigureAwait(false);
+            await _projectService.UpdateProjectAsync(tblProject).ConfigureAwait(false);
 
             // assert
-            lstTblProject = await ProjectService.GetProjectsAsync().ConfigureAwait(false);
-            Assert.IsTrue(string.Compare(lstTblProject.Find(x => x.ProjectName == "A Project").ProjectName, "A Project") == 0);
+            lstTblProject = await _projectService.GetProjectsAsync().ConfigureAwait(false);
+            Assert.IsTrue(string.Compare(lstTblProject[0].ProjectName, "A Project") == 0);
         }
 
         [TestMethod]
         public async Task DeleteProject_RecordRemoved()
         {
             // arrange
-            List<TblProject> lstTblProject = await ProjectService.GetProjectsAsync().ConfigureAwait(false);
-            TblProject tblProject = lstTblProject.Find(x => x.ProjectName == "A Project");
+            await _projectService.CreateProjectAsync(_tblProject).ConfigureAwait(false);
+            List<TblProject> lstTblProject = await _projectService.GetProjectsAsync().ConfigureAwait(false);
+            TblProject tblProject = lstTblProject[0];
 
             // act
-            await ProjectService.DeleteProjectAsync(tblProject).ConfigureAwait(false);
+            await _projectService.DeleteProjectAsync(tblProject).ConfigureAwait(false);
 
             // assert
-            lstTblProject = await ProjectService.GetProjectsAsync().ConfigureAwait(false);
-            Assert.IsNull(lstTblProject.Find(x => x.ProjectName == "A Project"));
+            lstTblProject = await _projectService.GetProjectsAsync().ConfigureAwait(false);
+            Assert.IsTrue(lstTblProject.Count == 0);
         }
     }
 }
