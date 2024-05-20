@@ -17,14 +17,9 @@ namespace SamplePeteService
     /// <summary>
     /// CRUD functions for TblEmployeeInfo table
     /// </summary>
-    public class EmployeeService : IEmployeeService
+    public class EmployeeService(Context context) : IEmployeeService
     {
-        private readonly Context _context;
-
-        public EmployeeService(Context context)
-        {
-            _context = context;
-        }
+        private readonly Context _context = context;
 
         public async Task CreateEmployeeAsync(TblEmployeeInfo tblEmployeeInfo)
         {

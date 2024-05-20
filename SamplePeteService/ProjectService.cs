@@ -18,14 +18,9 @@ namespace SamplePeteService
     /// <summary>
     /// CRUD functions for TblProject table
     /// </summary>
-    public class ProjectService : IProjectService
+    public class ProjectService(Context context) : IProjectService
     {
-        private readonly Context _context;
-
-        public ProjectService(Context context)
-        {
-            _context = context;
-        }
+        private readonly Context _context = context;
 
         public async Task CreateProjectAsync(TblProject tblProject)
         {
