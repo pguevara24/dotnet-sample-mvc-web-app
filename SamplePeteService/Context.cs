@@ -25,7 +25,6 @@ namespace SamplePeteService
             if (!optionsBuilder.IsConfigured)
             {
                 // always default to the in-memory database
-
                 optionsBuilder.UseInMemoryDatabase("SamplePeteAppDB")
                         .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning)); // don't raise the error warning us that the in-memory-database doesn't support transactions
             }
