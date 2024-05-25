@@ -55,10 +55,14 @@ a {
   border-color: #1861ac;
 }
 
+#dt-length-0 {
+  margin-right: 5px !important;
+}
+
 /* Sticky footer styles
 -------------------------------------------------- */
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 @media (min-width: 768px) {
   html {

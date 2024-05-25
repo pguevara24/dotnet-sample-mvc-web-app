@@ -130,20 +130,20 @@ function BuildDatatable(dataProjects) {
     $('#tblProjects').DataTable({
         data: dataProjects,
         columns: [
-            { "data": "projectID" },
-            { "data": "projectName" },
-            { "data": "startDate" },
-            { "data": "endDate" },
+            { "data": "projectID", className: "dt-body-left" },
+            { "data": "projectName", className: "dt-body-left" },
+            { "data": "startDate", className: "dt-body-left" },
+            { "data": "endDate", className: "dt-body-left" },
             {
                 data: null,
-                className: "dt-center editor-edit",
-                defaultContent: '<i class="fa fa-pencil"/>',
+                className: "dt-body-center editor-edit",
+                defaultContent: '<i class="fa fa-pencil"></i>',
                 orderable: false
             },
             {
                 data: null,
-                className: "dt-center editor-delete",
-                defaultContent: '<i class="fa fa-trash"/>',
+                className: "dt-body-center editor-delete",
+                defaultContent: '<i class="fa fa-trash"></i>',
                 orderable: false
             }
         ],
@@ -156,11 +156,11 @@ function BuildDatatable(dataProjects) {
             },
             {
                 "targets": [2],
-                "render": $.fn.dataTable.render.moment('YYYY-MM-DDTHH:mm:ss', 'MM/DD/YYYY')
+                "render": DataTable.render.moment('YYYY-MM-DDTHH:mm:ss', 'MM/DD/YYYY')
             },
             {
                 "targets": [3],
-                "render": $.fn.dataTable.render.moment('YYYY-MM-DDTHH:mm:ss', 'MM/DD/YYYY')
+                "render": DataTable.render.moment('YYYY-MM-DDTHH:mm:ss', 'MM/DD/YYYY')
             }
         ],
         "bStateSave": true,
